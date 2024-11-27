@@ -29,7 +29,7 @@ namespace Cliente
                 MessageBox.Show("No se puedo establecer conexión " + ex.Message,
                     "ERROR");
             }
-            finally 
+            finally
             {
                 flujo?.Close();
                 remoto?.Close();
@@ -61,7 +61,7 @@ namespace Cliente
                 Comando = "INGRESO",
                 Parametros = new[] { usuario, contraseña }
             };
-            
+
             Respuesta respuesta = HazOperacion(pedido);
             if (respuesta == null)
             {
@@ -88,7 +88,7 @@ namespace Cliente
 
         private Respuesta HazOperacion(Pedido pedido)
         {
-            if(flujo == null)
+            if (flujo == null)
             {
                 MessageBox.Show("No hay conexión", "ERROR");
                 return null;
@@ -97,29 +97,23 @@ namespace Cliente
             {
                 byte[] bufferTx = Encoding.UTF8.GetBytes(
                     pedido.Comando + " " + string.Join(" ", pedido.Parametros));
-                
+
                 flujo.Write(bufferTx, 0, bufferTx.Length);
 
                 byte[] bufferRx = new byte[1024];
-                
+
                 int bytesRx = flujo.Read(bufferRx, 0, bufferRx.Length);
-                
+
                 string mensaje = Encoding.UTF8.GetString(bufferRx, 0, bytesRx);
-                
-                var partes = mensaje.Split(' ');
-                
-                return new Respuesta
-                {
-                    Estado = partes[0],
-                    Mensaje = string.Join(" ", partes.Skip(1).ToArray())
-                };
+
+                return Protocolo.ProcesarRespuesta(mensaje);
             }
             catch (SocketException ex)
             {
                 MessageBox.Show("Error al intentar transmitir " + ex.Message,
                     "ERROR");
             }
-            finally 
+            finally
             {
                 flujo?.Close();
                 remoto?.Close();
@@ -132,13 +126,13 @@ namespace Cliente
             string modelo = txtModelo.Text;
             string marca = txtMarca.Text;
             string placa = txtPlaca.Text;
-            
+
             Pedido pedido = new Pedido
             {
                 Comando = "CALCULO",
                 Parametros = new[] { modelo, marca, placa }
             };
-            
+
             Respuesta respuesta = HazOperacion(pedido);
             if (respuesta == null)
             {
@@ -212,7 +206,7 @@ namespace Cliente
         private void btnNumConsultas_Click(object sender, EventArgs e)
         {
             String mensaje = "hola";
-            
+
             Pedido pedido = new Pedido
             {
                 Comando = "CONTADOR",
