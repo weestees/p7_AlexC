@@ -1,4 +1,19 @@
-﻿using System;
+﻿// ************************************************************************
+// Practica 07
+// Alex Calderon
+// Fecha de realización: 27/11/2024
+// Fecha de entrega: 04/12/2024
+// Resultados:
+
+
+// Acerca del Codigo
+//Se modificó el código del cliente para que utilice la clase Protocolo en lugar de Pedido y Respuesta.
+//•	Instancia de Protocolo: Se crea una instancia de la clase Protocolo para enviar y procesar mensajes.
+//•	Llamada a ResolverPedido: Se llama al método ResolverPedido de la clase Protocolo para procesar el mensaje y obtener la respuesta.
+// ************************************************************************
+
+
+using System;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -21,6 +36,7 @@ namespace Cliente
         {
             try
             {
+                // Establece la conexión con el servidor
                 remoto = new TcpClient("127.0.0.1", 8080);
                 flujo = remoto.GetStream();
             }
@@ -31,10 +47,12 @@ namespace Cliente
             }
             finally
             {
+                // Cierra el flujo y la conexión si hay error
                 flujo?.Close();
                 remoto?.Close();
             }
 
+            // Deshabilita los controles de la placa y días
             panPlaca.Enabled = false;
             chkLunes.Enabled = false;
             chkMartes.Enabled = false;
@@ -47,6 +65,7 @@ namespace Cliente
 
         private void btnIniciar_Click(object sender, EventArgs e)
         {
+            // Verifica que el usuario y la contraseña no estén vacíos
             string usuario = txtUsuario.Text;
             string contraseña = txtPassword.Text;
             if (usuario == "" || contraseña == "")
@@ -56,12 +75,14 @@ namespace Cliente
                 return;
             }
 
+            // Crea un pedido de ingreso
             Pedido pedido = new Pedido
             {
                 Comando = "INGRESO",
                 Parametros = new[] { usuario, contraseña }
             };
 
+            // Realiza la operación y obtiene la respuesta
             Respuesta respuesta = HazOperacion(pedido);
             if (respuesta == null)
             {
@@ -69,6 +90,7 @@ namespace Cliente
                 return;
             }
 
+            // Verifica la respuesta del servidor
             if (respuesta.Estado == "OK" && respuesta.Mensaje == "ACCESO_CONCEDIDO")
             {
                 panPlaca.Enabled = true;
@@ -95,6 +117,7 @@ namespace Cliente
             }
             try
             {
+                // Envía el pedido al servidor
                 byte[] bufferTx = Encoding.UTF8.GetBytes(
                     pedido.Comando + " " + string.Join(" ", pedido.Parametros));
 
@@ -102,6 +125,7 @@ namespace Cliente
 
                 byte[] bufferRx = new byte[1024];
 
+                // Lee la respuesta del servidor
                 int bytesRx = flujo.Read(bufferRx, 0, bufferRx.Length);
 
                 string mensaje = Encoding.UTF8.GetString(bufferRx, 0, bytesRx);
@@ -115,6 +139,7 @@ namespace Cliente
             }
             finally
             {
+                // Cierra el flujo y la conexión
                 flujo?.Close();
                 remoto?.Close();
             }
@@ -123,6 +148,7 @@ namespace Cliente
 
         private void btnConsultar_Click(object sender, EventArgs e)
         {
+            // Crea un pedido de cálculo
             string modelo = txtModelo.Text;
             string marca = txtMarca.Text;
             string placa = txtPlaca.Text;
@@ -133,6 +159,7 @@ namespace Cliente
                 Parametros = new[] { modelo, marca, placa }
             };
 
+            // Realiza la operación y obtiene la respuesta
             Respuesta respuesta = HazOperacion(pedido);
             if (respuesta == null)
             {
@@ -140,6 +167,7 @@ namespace Cliente
                 return;
             }
 
+            // Verifica la respuesta del servidor
             if (respuesta.Estado == "NOK")
             {
                 MessageBox.Show("Error en la solicitud.", "ERROR");
@@ -155,6 +183,7 @@ namespace Cliente
                 MessageBox.Show("Se recibió: " + respuesta.Mensaje,
                     "INFORMACIÓN");
                 byte resultado = Byte.Parse(partes[1]);
+                // Actualiza los checkboxes según el resultado
                 switch (resultado)
                 {
                     case 0b00100000:
@@ -205,6 +234,7 @@ namespace Cliente
 
         private void btnNumConsultas_Click(object sender, EventArgs e)
         {
+            // Crea un pedido de contador
             String mensaje = "hola";
 
             Pedido pedido = new Pedido
@@ -213,6 +243,7 @@ namespace Cliente
                 Parametros = new[] { mensaje }
             };
 
+            // Realiza la operación y obtiene la respuesta
             Respuesta respuesta = HazOperacion(pedido);
             if (respuesta == null)
             {
@@ -220,6 +251,7 @@ namespace Cliente
                 return;
             }
 
+            // Verifica la respuesta del servidor
             if (respuesta.Estado == "NOK")
             {
                 MessageBox.Show("Error en la solicitud.", "ERROR");
@@ -235,6 +267,7 @@ namespace Cliente
 
         private void FrmValidador_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // Cierra el flujo y la conexión al cerrar el formulario
             if (flujo != null)
                 flujo.Close();
             if (remoto != null)
