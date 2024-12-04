@@ -3,8 +3,11 @@
 // Alex Calderon
 // Fecha de realización: 27/11/2024
 // Fecha de entrega: 04/12/2024
-// Resultados:
 
+//Conclusiones:
+//1. El cliente se mantiene simple y directo, enfocándose en enviar pedidos y procesar respuestas utilizando la clase Protocolo.
+//2. La reutilización de la clase Protocolo asegura que el cliente y el servidor compartan la misma lógica de negocio, reduciendo la duplicación de código.
+//3. La estructura del cliente permite fácilmente enviar diferentes tipos de pedidos y manejar las respuestas correspondientes
 
 // Acerca del Codigo
 //Se modificó el código del cliente para que utilice la clase Protocolo en lugar de Pedido y Respuesta.
